@@ -3,7 +3,11 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+//Modo Developer
+const client = new Client({intents: [131071]});
+
+// Modo Producción
+//const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
