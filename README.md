@@ -1,5 +1,5 @@
 # bot-discord
-Bot discord JS de cratos112 
+Bot discord JS 
 
 Un bot de Discord que permite a los usuarios interactuar con él a través de reacciones a mensajes. Los mensajes embed son mensajes especiales que pueden contener texto enriquecido, imágenes y otros elementos multimedia para mejorar la presentación de la información.
 
