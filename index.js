@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const { Client, Collection } = require('discord.js'); //GatewayIntentBits
 const { token } = require('./config.json');
 
 //Modo Developer
