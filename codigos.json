@@ -1,0 +1,22 @@
+[
+  {
+    "nombre": "Código 1",
+    "descripcion": "Este código permite la creación de un modo de juego de disparos rápidos."
+  },
+  {
+    "nombre": "Código 2",
+    "descripcion": "Con este código, los jugadores pueden competir en un torneo de duelo."
+  },
+  {
+    "nombre": "Código 3",
+    "descripcion": "Este código crea un modo de juego de defensa de la base contra oleadas de enemigos."
+  },
+  {
+    "nombre": "1v1",
+    "descripcion": "1v1 en el mapa lyjang"
+  },
+  {
+    "nombre": "Mi padre",
+    "descripcion": "Un mapa de mi padre"
+  }
+]
