@@ -1,0 +1,34 @@
+{
+    "jsc": {
+        "target": "esnext",
+        "parser": {
+            "syntax": "typescript",
+            "tsx": false,
+            "decorators": true,
+            "dynamicImport": true
+        },
+        "baseUrl": "./",
+        "paths": {
+            "@owg/handler": [
+                "./src/packages/owg-handler/src/index.ts"
+            ]
+        },
+        "transform": {
+            "optimizer": {
+                "globals": {
+                    "vars": {
+                        "__DEBUG__": "false"
+                    }
+                }
+            }
+        }
+    },
+    "module": {
+        "type": "commonjs",
+        "strict": true,
+        "strictMode": true,
+        "lazy": true,
+        "noInterop": false
+    },
+    "minify": true
+}
