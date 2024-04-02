@@ -1,3 +1,5 @@
-export async function test() {
-    console.log('test');
-}
+export * from './structures/client-structure'
+export * from './utils/loadFunctions'
+export * from './interfaces/owgCommand'
+export * from './interfaces/owgSubcommand'
+export * from './interfaces/events'

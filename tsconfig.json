@@ -24,5 +24,8 @@
                 "src/packages/owg-handler/src/index.ts"
             ]
         }
-    }
+    },
+    "include": [
+        "src/**/*"
+    ]
 }

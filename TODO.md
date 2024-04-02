@@ -1,0 +1,1 @@
+- [] Bot is currently not registering events
