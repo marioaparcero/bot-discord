@@ -1,1 +1,2 @@
-- [] Bot is currently not registering events
+- [ ] El bot no registra comandos
+- [ ] Pasar los comandos de `js` a `ts`

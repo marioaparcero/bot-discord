@@ -21,16 +21,16 @@ export class OWGClient extends Client {
 
     async start() {
         this.on('ready', async () => {
-            Logger.info("🤓☝️ The bot is up and ready!.", { service: 'Client Structure' })
             this.user?.setActivity({
                 name: this.activity?.name ?? 'with the code',
                 type: this.activity?.type ?? ActivityType.Playing
             })
+            await this.loadCommands();
+            Logger.info("🤓☝️ The bot is up and ready!.", { service: 'Client Structure' })
         })
         Logger.info("🤖 Starting the bot...", {
             service: 'Client Structure',
         })
-        await this.loadCommands();
         await this.loadEvents();
         await this.login(this.botToken);
     }
