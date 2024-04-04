@@ -3,10 +3,10 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
     .setName('unmute')
-    .setDescription('Mutea a un usuario por su ID o mencionándolo.')
+    .setDescription('Desmutea a un usuario por su ID o mencionándolo.')
     .addUserOption(option =>
         option.setName('usuario')
-        .setDescription('Selecciona al usuario que quieras mutear.')
+        .setDescription('Selecciona al usuario que quieras desmutear.')
         .setRequired(true)
     )
     .addStringOption(option =>
@@ -20,16 +20,19 @@ module.exports = {
     async execute(interaction) {
         const usuarioOption = interaction.options.getUser('usuario');
         const razon = interaction.options.getString('razon');
-
+    
         const userID = usuarioOption ? usuarioOption.id : usuarioOption;
-
+    
         try {
             if (!interaction.member.permissions.has(PermissionFlagsBits.MuteMembers)) {
                 return interaction.reply('No tienes permiso para usar este comando.');
             }
-
+    
             const member = interaction.guild.members.cache.get(userID);
-            await member.voice.setMute(false, razon);
+    
+            // Mute the member in all text channels
+           await member.disableCommunicationUntil(null, razon);
+    
             await interaction.reply(`El usuario <@${userID}> ha sido desmuteado por la razón: ${razon}`);
         } catch (error) {
             if(error.code === 50013) {
