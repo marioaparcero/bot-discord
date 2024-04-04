@@ -2,9 +2,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection } = require('discord.js'); //GatewayIntentBits
 const { token } = require('./config.json');
+const db = require('./db/database.js');
 
 //Modo Developer
-const client = new Client({intents: [131071]});
+const client = new Client({ intents: [131071] });
 
 // Modo Producción
 //const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -39,5 +40,24 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
+// Make Database (Testing purposes) SQLite
+
+db.run(`CREATE TABLE warns(
+    id TEXT PRIMARY KEY,
+    user TEXT NOT NULL,
+    reason TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+)`, (err) => {
+	if (err) {
+		// Table already created
+		console.log('Table already created.');
+	} else {
+		// Table just created, creating some rows
+		const insert = 'INSERT INTO warns (id, user, reason) VALUES (?, ?, ?)';
+		db.run(insert, ["1", "user1", "reason1"]);
+		db.run(insert, ["2", "user2", "reason2"]);
+	}
+});
 
 client.login(token);

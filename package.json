@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^14.13.0"
+    "@devraelfreeze/discordjs-pagination": "^2.7.6",
+    "discord.js": "^14.13.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "eslint": "^8.50.0"
