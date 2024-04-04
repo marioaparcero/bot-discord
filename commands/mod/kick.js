@@ -37,8 +37,11 @@ module.exports = {
                 console.error('No se encontró el canal de registro (#logs)');
             }
         } catch (error) {
+            if(error.code === 50013) {
+                return await interaction.reply('No tienes permisos suficientes para expulsar a este usuario.');
+            }
             console.error(error);
-            await interaction.reply(`No se pudo expulsar al usuario con ID ${userID}.`);
+            await interaction.reply(`No se pudo expulsar al usuario con ID <@${userID}>.`);
         }
     }
 }
