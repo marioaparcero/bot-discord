@@ -15,7 +15,7 @@ module.exports = {
         .setRequired(true)
     )
     .setDefaultMemberPermissions(
-        ([PermissionFlagsBits.BanMembers]).bitField
+        ([PermissionFlagsBits.BanMembers, PermissionFlagsBits.ModerateMembers]).bitField
     ),
     async execute(interaction) {
         let userId = interaction.options.getString('usuario');
@@ -24,6 +24,10 @@ module.exports = {
         userId = userId.replace('<@', '').replace('>', '');
 
         try {
+            if (!interaction.member.permissions.has(PermissionFlagsBits.BanMembers)) {
+                return interaction.reply('No tienes permiso para usar este comando.');
+            }
+
             const bans = await interaction.guild.bans.fetch();
             const bannedUser = bans.find(user => user.user.id === userId);
 

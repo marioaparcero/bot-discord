@@ -23,6 +23,10 @@ module.exports = {
         const userID = usuarioOption ? usuarioOption.id : usuarioOption;
 
         try {
+            if (!interaction.member.permissions.has(PermissionFlagsBits.BanMembers)) {
+                return interaction.reply('No tienes permiso para usar este comando.');
+            }
+            
             // Verifica si el usuario ya está baneado
             const bans = await interaction.guild.bans.fetch();
             const bannedUser = bans.find(user => user.user.id === userID);

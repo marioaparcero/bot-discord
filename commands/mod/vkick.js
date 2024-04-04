@@ -2,8 +2,8 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName('kick')
-    .setDescription('Expulsa a un usuario por su ID o mencionándolo.')
+    .setName('vkick')
+    .setDescription('Expulsa a un usuario por su ID o mencionándolo del voice chat.')
     .addUserOption(option =>
         option.setName('usuario')
         .setDescription('Selecciona al usuario que deseas expulsar.')
@@ -24,22 +24,17 @@ module.exports = {
         const userID = usuarioOption ? usuarioOption.id : usuarioOption;
 
         try {
+
             if (!interaction.member.permissions.has(PermissionFlagsBits.KickMembers)) {
                 return interaction.reply('No tienes permiso para usar este comando.');
             }
 
-            await interaction.guild.members.kick(userID, razon);
-            await interaction.reply(`El usuario con ID <@${userID}> ha sido expulsado por la razón: ${razon}`);
-
-            const logsChannel = interaction.guild.channels.cache.find(
-                (channel) => channel.name === 'logs' && channel.type === 'text'
-            );
-
-            if (logsChannel) {
-                logsChannel.send(`Usuario expulsado: <@${userID}> por la razón: ${razon}`);
-            } else {
-                console.error('No se encontró el canal de registro (#logs)');
+            const member = interaction.guild.members.cache.get(userID);
+            if (!member.voice.channel) {
+                return interaction.reply('El usuario no está en un canal de voz.');
             }
+            await member.voice.disconnect(razon);
+            await interaction.reply(`El usuario <@${userID}> ha sido expulsado del canal de voz por la razón: ${razon}`);
         } catch (error) {
             if(error.code === 50013) {
                 return await interaction.reply('No tienes permisos suficientes para expulsar a este usuario.');
