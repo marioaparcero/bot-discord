@@ -2,14 +2,15 @@ const {Events} = require('discord.js');
 const {MongoClient} = require('mongodb');
 const settings = require('../settings')
 
+//Recibe los datos del modal de registro del perfil de citas y revisa que los datos sean correctos
+
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
         if (!interaction.isModalSubmit()) return;
         try {
-            const client = new MongoClient(settings.dbURL)
-
-            if (interaction.customId === 'myModal') {
+            if (interaction.customId === 'registerModal') {
+                const client = new MongoClient(settings.dbURL)
                 await client.connect()
                 const db = client.db(settings.db)
                 const collection = db.collection(settings.colUsers)
@@ -19,16 +20,16 @@ module.exports = {
                 const sexoRgx = /^(hombre|mujer)$/
 
                 if (!res) {
-                    const userResponse = {userId: interaction.user.id}
+                    const userResponse = {userId: interaction.user.id, matchs: []}
 
                     for (const item of interaction.fields.components) {
                         const component = item.components[0];
                         if (component.customId === 'edadInput') {
-
                             if (!edadrgx.test(component.value)) {
                                 await interaction.reply({
                                     content: 'Formato de fecha de nacimiento incorrecta',
-                                    ephemeral: true
+                                    ephemeral: true,
+                                    lifetime: 10000
                                 });
                                 return;
                             }
@@ -49,7 +50,6 @@ module.exports = {
                         }
                     }
 
-
                     await collection.insertOne(userResponse)
 
                     await interaction.reply({
@@ -58,8 +58,12 @@ module.exports = {
                     });
 
                 } else {
-                    await interaction.reply({content: 'Ya tienes un perfil registrado a tu cuenta!', ephemeral: true});
+                    await interaction.reply({
+                        content: 'Ya tienes un perfil registrado a tu cuenta!', ephemeral: true
+                    });
                 }
+
+
             }
         } catch (error) {
             console.error(`Error executing ${interaction.commandName}`);

@@ -18,7 +18,6 @@ module.exports = {
                 {name: '¿Mujeres?', value: '¿O a alguna bella dama con la que compartir hermosos momentos?'},
             ).setImage('https://sm.ign.com/ign_es/screenshot/default/sin-titulo-1_c7z8.jpg')
 
-
         const hombres = new ButtonBuilder()
             .setCustomId('hombre')
             .setLabel('Hombres')
@@ -33,6 +32,8 @@ module.exports = {
             .addComponents(hombres)
             .addComponents(mujeres)
 
-        await interaction.reply({embeds: [embed], components: [botones], ephemeral: true})
+        await interaction.reply({
+            embeds: [embed], components: [botones], ephemeral: true
+        })
     },
 };

@@ -2,6 +2,9 @@ const {Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder} = require('discord
 const {MongoClient} = require("mongodb");
 const settings = require("../settings");
 
+// Cuando se pide una cita envia por mensaje privado un mensaje notificando al usuario que le piden la cita
+// quien le envió la solicitud, mostrandole el perfil de citas del que desea la cita, mientras que al otro
+// usuario se le manda un mensaje notificandole que se le mandó el msj a la otra persona
 
 module.exports = {
     name: Events.InteractionCreate,
@@ -9,7 +12,6 @@ module.exports = {
         if (!interaction.isButton()) return;
         try {
             if (interaction.customId.includes('pedirCita')) {
-
                 const client = new MongoClient(settings.dbURL)
                 await client.connect()
                 const db = client.db(settings.db)
@@ -41,27 +43,20 @@ module.exports = {
                     .setCustomId(`aceptarCitaBtn_${userDatingID}`)
                     .setLabel('Aceptar cita')
                     .setStyle(1)
-          
+
                 const boton = new ActionRowBuilder().addComponents(aceptarCita)
 
-                await interaction.reply({
-                    content: 'Un momento por favor, estamos enviando la solicitud de cita',
-                    ephemeral: true
-                })
 
-                // Luego descomentar
-
-                // await userDatedInfo.send({
-                //     content: `<@${userDatingID}> Se ha fijado en ti!`,
-                //     embeds: [embed],
-                //     components: [boton],
-                // });
-
-                await userDatingInfo.send({
-                    content: `Hemos notificado a <@${userDatedID}> de tu interés, si acepta la cita se te notificará y crearemos un chat para ustedes, ¡suerte!`,
+                await userDatedInfo.send({
+                    content: `<@${userDatingID}> Se ha fijado en ti!`,
+                    embeds: [embed],
                     components: [boton],
                 });
 
+                await userDatingInfo.send({
+                    content: `Hemos notificado a <@${userDatedID}> de tu interés, si acepta la cita se te notificará y crearemos un chat para ustedes, ¡suerte!`,
+
+                });
             }
         } catch (error) {
             console.error(`Error executing ${interaction.commandName}`);

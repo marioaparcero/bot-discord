@@ -2,6 +2,10 @@ const {Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder} = require('discord
 const {MongoClient} = require('mongodb');
 const settings = require('../settings')
 
+//Hace una llamada a la base de datos y trae los perfiles que cumplan con la petición (hombre-mujer)
+//quita el perfil del usuario y obtiene un perfil random, luego se lo muestra al usuario
+
+
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
@@ -47,7 +51,6 @@ module.exports = {
                     const embed = new EmbedBuilder()
                         .setColor('Random')
                         .setTitle(selectedUser.nameInput)
-                        .setDescription('Posible descripción corta')
                         .addFields(
                             {name: 'Nombre', value: selectedUser.nameInput},
                             {name: 'Edad', value: selectedUser.edadInput},
@@ -68,7 +71,6 @@ module.exports = {
                         components: [boton],
                         ephemeral: true
                     })
-
 
                 } else {
                     await interaction.reply({

@@ -1,26 +1,16 @@
-const {Events, ChannelType, PermissionsBitField, ButtonBuilder, ActionRowBuilder} = require('discord.js');
-const {MongoClient} = require("mongodb");
+const {Events, ButtonBuilder, ActionRowBuilder} = require('discord.js');
 const settings = require("../settings");
 
+//Mensaje de bienvenida en chats de texto que sean creados bajo categoria especifica
 
 module.exports = {
     name: Events.ChannelCreate,
     async execute(channel) {
         try {
-            if (channel.type === 0) {
-                // const client = new MongoClient(settings.dbURL)
-                // const db = client.db(settings.db)
-                // const collectionMatches = db.collection(settings.colMatchs)
-                // await client.connect()
-
+            if (channel.type === 0 && channel.parentId === settings.parendID) {
                 const channelMembers = channel.members.filter(data => {
                     return data.user.bot === false
                 })
-
-                // const user1Matches = collectionMatches.findOne({userId: channelMembers.id})
-
-                // console.log("user: ", channelMembers)
-                // console.log('///////////////////')
 
                 const terminarCita = new ButtonBuilder()
                     .setCustomId('amorwatch_terminarCita')
@@ -32,7 +22,7 @@ module.exports = {
                 await channel.send({
                     content: `Bienvenidos a su chat privado ${channelMembers.map(data => {
                         return (`<@${data.id}>`)
-                    })}`,
+                    })}, que tengan una bonita cita.`,
                     components: [boton]
                 })
             }

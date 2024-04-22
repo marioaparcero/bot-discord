@@ -6,13 +6,12 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setDMPermission(false)
         .setName('registrarcitas')
-        .setDescription('Registra tu perfil en amorwatch.'),
+        .setDescription('Registra tu perfil en LoveWatch.'),
 
     async execute(interaction) {
-
         const modal = new ModalBuilder()
-            .setCustomId('myModal')
-            .setTitle('Registro de tu perfil en "amorwatch"');
+            .setCustomId('registerModal')
+            .setTitle('Registro de tu perfil en "LoveWatch"');
 
         const name = new TextInputBuilder()
             .setCustomId('nameInput')
@@ -46,8 +45,7 @@ module.exports = {
             .setCustomId('hobbiesInput')
             .setLabel("Cual es tu hobbie favorito?")
             .setStyle('Paragraph')
-            .setMaxLength(50)
-
+            .setMaxLength(150)
 
         const nameInput = new ActionRowBuilder().addComponents(name);
         const edadInput = new ActionRowBuilder().addComponents(edad);
@@ -55,10 +53,8 @@ module.exports = {
         const descInput = new ActionRowBuilder().addComponents(descripcion);
         const hobbieInput = new ActionRowBuilder().addComponents(hobbies);
 
-
         modal.addComponents(nameInput, edadInput, sexoInput, descInput, hobbieInput);
 
         await interaction.showModal(modal);
-
     },
 };
