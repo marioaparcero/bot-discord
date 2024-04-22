@@ -24,20 +24,20 @@ module.exports = {
                 const now = new Date();
                 const userRecord = await collectionUsers.findOne({userId: interaction.user.id});
 
-                // if (userRecord || userRecord.lastExecutionTime) {
-                //     const lastExecutionTime = new Date(userRecord.lastExecutionTime);
-                //     const hoursDiff = getHoursDiff(lastExecutionTime, now);
-                //     await collectionUsers.updateOne({userId: interaction.user.id}, {$set: {lastExecutionTime: now}}, {upsert: true});
-                //
-                //     if (hoursDiff < 24) {
-                //         const remainingHours = 24 - hoursDiff;
-                //         await interaction.reply({
-                //             content: `Debes esperar ${remainingHours} horas antes de poder ejecutar este comando nuevamente.`,
-                //             ephemeral: true
-                //         });
-                //         return;
-                //     }
-                // }
+                if (userRecord || userRecord.lastExecutionTime) {
+                    const lastExecutionTime = new Date(userRecord.lastExecutionTime);
+                    const hoursDiff = getHoursDiff(lastExecutionTime, now);
+                    await collectionUsers.updateOne({userId: interaction.user.id}, {$set: {lastExecutionTime: now}}, {upsert: true});
+
+                    if (hoursDiff < 24) {
+                        const remainingHours = 24 - hoursDiff;
+                        await interaction.reply({
+                            content: `Debes esperar ${remainingHours} horas antes de poder ejecutar este comando nuevamente.`,
+                            ephemeral: true
+                        });
+                        return;
+                    }
+                }
 
                 const res = await collectionUsers.find({sexoInput: interaction.customId}).toArray()
                 const finalArr = res.filter(user => {
