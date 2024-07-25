@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^14.13.0"
+    "discord.js": "^14.13.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^8.50.0"
