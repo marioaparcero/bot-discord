@@ -3,6 +3,7 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits, Events, ChannelType, EmbedBuilder, Partials } = require('discord.js');
 const mongoose = require('mongoose');
 const { token } = require('./config.json');
+const db = require('better-sqlite3')('your database name');
 
 //Modo Developer
 //const client = new Client({intents: [131071]});
@@ -31,6 +32,11 @@ const client = new Client({
 		Partials.GuildMember // Permite recibir miembros sin toda la información
 	]
 });
+
+client.db = db;
+
+//db.prepare(`CREATE TABLE IF NOT EXISTS userpremium (userID TEXT)`).run()
+//db.prepare(`CREATE TABLE IF NOT EXISTS guildpremium (guildID TEXT)`).run()
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -64,12 +70,11 @@ for (const file of eventFiles) {
 }
 
 mongoose.connect('mongodb+srv://diegojosuemunozz45:AxkJj4x1nVWu4kxm@cluster0.pdmrh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
+	//useNewUrlParser: true,
+	//useUnifiedTopology: true,
 })
 	.then(() => console.log('Conectado a MongoDB local'))
 	.catch(err => console.error('Error de conexión a MongoDB:', err));
-
 mongoose.connection.on('connected', () => {
 	console.log('MongoDB está conectado');
 });
@@ -81,6 +86,5 @@ mongoose.connection.on('error', (err) => {
 mongoose.connection.on('disconnected', () => {
 	console.log('MongoDB está desconectado');
 });
-
 
 client.login(token);

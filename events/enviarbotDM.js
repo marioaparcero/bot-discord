@@ -1,8 +1,7 @@
 const { Events, ChannelType, EmbedBuilder } = require('discord.js');
-const ModmailData = require('../Schemas/modmail'); // Path to your Modmail schema
+const ModmailData = require('../Schemas/Modmail/modmail'); // Path to your Modmail schema
 const guildId = '1323741291997298748'; // your guildId, for the modmails
 const modmailCategory = '1323741292508745791'; // The category where the modmail tickets should be created
-
 const userIDs = ['1323441887503450228']; // Users who should see the modmail tickets
 const roleIDs = ['1325645567183028315', '1325645584270491648']; // Roles who should see the modmail tickets
 
