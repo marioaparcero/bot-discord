@@ -1,41 +1,45 @@
-const { SlashCommandBuilder } = require('discord.js');
-const axios = require('axios');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
+const puppeteer = require('puppeteer');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('chatbot')
-        .setDescription('Habla con el bot como si fuera una IA.')
-        .addStringOption(option => 
-            option.setName('mensaje')
-                .setDescription('El mensaje que deseas enviar al bot')
-                .setRequired(true)),
-    async execute(interaction) {
-        const mensaje = interaction.options.getString('mensaje');
-        const apiKey = 'API_OPENAI'; // Reemplaza con tu clave de API
+    .setName('chatgpt')
+    .setDescription('Habla con un modelo de lenguaje GPT-3.')
+    .addStringOption(option => option.setName('prompt').setDescription('Mensaje a enviar al modelo de lenguaje GPT-3.').setRequired(true)),
+    async execute (interaction) {
 
-        try {
-            // Llamada a la API de OpenAI
-            const response = await axios.post(
-                'https://api.openai.com/v1/chat/completions',
-                {
-                    model: 'gpt-3.5-turbo', // Puedes cambiar el modelo según tus necesidades
-                    messages: [{ role: 'user', content: mensaje }],
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral});
 
-            const respuestaIA = response.data.choices[0].message.content;
+        const { options } = interaction;
+        const prompt = options.getString('prompt');
 
-            // Respuesta del bot
-            await interaction.reply(respuestaIA);
-        } catch (error) {
-            console.error(error);
-            await interaction.reply('Hubo un problema al procesar tu mensaje. Por favor, inténtalo de nuevo más tarde.');
-        }
-    },
-};
+        const browser = await puppeteer.launch({ headless: true });
+        const page = await browser.newPage();
+
+        await page.goto('https://chat-app-f2d296.zapier.app/');
+
+        await page.waitForSelector('textarea[placeholder="Ask me anything"]');
+        await page.focus('textarea[placeholder="Ask me anything"]');
+        await page.waitForTimeout(1000);
+        await page.keyboard.type(prompt);
+        await page.keyboard.press('Enter');
+
+        await page.waitForTimeout(10000);
+        await page.waitForSelector('[data-testid="bot-message"]', async (elements) => {
+            return elements.map((element) => element.textContent);
+        });
+
+        setTimeout(async () => {
+            if (value.length == 0) return await interaction.editReply({ content: `❌ Ha ocurrido un error al tratar de responder, intentalo más tarde.` });
+        }, 60000);
+
+        await browser.close();
+        
+        value.shift();
+        const embed = new EmbedBuilder()
+        .setColor("Blurple")
+        .setDescription(`\`\`\`${value.join('\n\n\n\n')}\`\`\``);
+
+        await interaction.editReply({ embeds: [embed] });
+    }
+}

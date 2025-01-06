@@ -3,7 +3,7 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits, Events, ChannelType, EmbedBuilder, Partials } = require('discord.js');
 const mongoose = require('mongoose');
 const { token } = require('./config.json');
-const db = require('better-sqlite3')('your database name');
+//const db = require('better-sqlite3')('your database name');
 
 //Modo Developer
 //const client = new Client({intents: [131071]});
@@ -33,7 +33,7 @@ const client = new Client({
 	]
 });
 
-client.db = db;
+//client.db = db;
 
 //db.prepare(`CREATE TABLE IF NOT EXISTS userpremium (userID TEXT)`).run()
 //db.prepare(`CREATE TABLE IF NOT EXISTS guildpremium (guildID TEXT)`).run()
