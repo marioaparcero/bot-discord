@@ -11,7 +11,7 @@ module.exports = {
                 .setRequired(true)),
     async execute(interaction) {
         const mensaje = interaction.options.getString('mensaje');
-        const apiKey = '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'; // Reemplaza con tu clave de API
+        const apiKey = 'API_OPENAI'; // Reemplaza con tu clave de API
 
         try {
             // Llamada a la API de OpenAI
