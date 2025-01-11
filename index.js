@@ -69,7 +69,7 @@ for (const file of eventFiles) {
 	}
 }
 
-mongoose.connect('mongodb+srv://diegojosuemunozz45:AxkJj4x1nVWu4kxm@cluster0.pdmrh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect('MONGO DB', {
 	//useNewUrlParser: true,
 	//useUnifiedTopology: true,
 })
