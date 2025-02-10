@@ -1,6 +1,8 @@
 const {
     SlashCommandBuilder,
     EmbedBuilder,
+    ButtonBuilder,
+    ActionRowBuilder
 } = require('discord.js');
 
 module.exports = {
@@ -41,8 +43,22 @@ module.exports = {
                 },
             ).setImage('https://bnetcmsus-a.akamaihd.net/cms/page_media/8e/8E77P32J7NLQ1675992201986.png')
 
+        const hombres = new ButtonBuilder()
+        .setCustomId('registerBtn')
+        .setLabel('📖 Registrate')
+        .setStyle(1)
+
+        const mujeres = new ButtonBuilder()
+            .setCustomId('info')
+            .setLabel('❓ Más información')
+            .setStyle(2)
+
+        const botones = new ActionRowBuilder()
+            .addComponents(hombres)
+            .addComponents(mujeres)
+
         await interaction.reply({
-            embeds: [embed], ephemeral: true
+            embeds: [embed], components: [botones], ephemeral: true
         })
     },
 };
