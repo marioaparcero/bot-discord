@@ -1,0 +1,4 @@
+module.exports = {
+    canalLogMensajesBot: 'id-canal-mensajes-bot',
+    canalApelaciones: 'id-canal-apelaciones',
+};
