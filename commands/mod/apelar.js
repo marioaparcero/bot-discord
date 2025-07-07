@@ -26,6 +26,7 @@ module.exports = {
         // Agrega las reacciones
         await mensaje.react('✅');
         await mensaje.react('❌');
+        await mensaje.react('❔');
 
         // Confirma al usuario
         await interaction.reply({ content: 'Tu apelación ha sido enviada al staff. ¡Gracias!', ephemeral: true });
