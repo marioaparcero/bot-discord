@@ -14,9 +14,17 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setTitle('Nueva apelación')
-            .setDescription(motivo)
+            .setDescription(`- __**Usuario**__: <@${interaction.user.id}>\n- __**Motivo**__: ${motivo}`)
             .setColor(0x00AE86)
-            .addFields({ name: 'Usuario', value: `<@${interaction.user.id}>`, inline: true }, { name: 'ID', value: interaction.user.id, inline: true })
+            // .addFields({ name: 'Usuario', value: `<@${interaction.user.id}>`, inline: true })
+            // { name: 'ID', value: interaction.user.id, inline: true })
+            .setAuthor({
+                name: interaction.user.username,
+                iconURL: interaction.user.displayAvatarURL({ dynamic: true })
+            })
+            .setFooter({
+                text: `User ID: ${interaction.user.id}`
+            })
             .setTimestamp();
 
         // Envía el embed al canal privado de moderación
