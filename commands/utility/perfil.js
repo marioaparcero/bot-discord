@@ -71,8 +71,22 @@ module.exports = {
             });
         }
 
+        // Definir colores para cada rango
+        const coloresRango = {
+            bronce: '#cd7f32',
+            plata: '#c0c0c0',
+            oro: '#ffd700',
+            platino: '#e5e4e2',
+            diamante: '#00bfff',
+            maestro: '#00ff00',
+            granmaestro: '#ff6600',
+            t500: '#ffff00',
+            campeon: '#a020f0',
+            sinrango: '#808080'
+        };
+
         const embed = new EmbedBuilder()
-            .setColor('#FF9C33')
+            .setColor(coloresRango[perfil.rango] || '#FF9C33') // Usa el color según el rango, o uno por defecto
             .setAuthor({
                 name: targetMember ? targetMember.displayName : targetUser.username,
                 iconURL: targetUser.displayAvatarURL()
