@@ -24,7 +24,8 @@ module.exports = {
             option.setName('rango')
             .setDescription('Rango competitivo')
             .setRequired(false)
-            .addChoices({ name: 'Bronce', value: 'bronce' }, { name: 'Plata', value: 'plata' }, { name: 'Oro', value: 'oro' }, { name: 'Platino', value: 'platino' }, { name: 'Diamante', value: 'diamante' }, { name: 'Maestro', value: 'maestro' }, { name: 'Gran Maestro', value: 'granmaestro' }, { name: 'Top 500', value: 't500' }))
+            .addChoices({ name: 'Sin rango', value: 'sinrango' }, { name: 'Bronce', value: 'bronce' }, { name: 'Plata', value: 'plata' }, { name: 'Oro', value: 'oro' }, { name: 'Platino', value: 'platino' }, { name: 'Diamante', value: 'diamante' }, { name: 'Maestro', value: 'maestro' }, { name: 'Gran Maestro', value: 'granmaestro' }, { name: 'Top 500', value: 't500' }, { name: 'Campeón', value: 'campeon' })
+        )
         .addStringOption(option =>
             option.setName('plataforma')
             .setDescription('Plataforma de juego')
