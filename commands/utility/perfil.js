@@ -2,47 +2,52 @@ const { SlashCommandBuilder, AttachmentBuilder, MessageFlags } = require('discor
 const Canvas = require('@napi-rs/canvas');
 const { request } = require('undici');
 
-// Configuración mejorada con validación de URLs
+// Centralized configuration for easy modification
 const config = {
+    backgroundColor: '#0a0a1a',
+    textColor: '#ffffff',
+    accentColor: '#1e90ff',
+    rankIconSize: { width: 48, height: 48 },
+    platformIconSize: { width: 32, height: 32 },
+    galaxyLogo: 'https://comunidadoverwatch.com/wp-content/uploads/2023/01/Logo.png',
     rankImages: {
-        sinrango: 'https://comunidadoverwatch.com/wp-content/uploads/2025/07/sin-rango.png',
-        bronce: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/bronce.png',
-        plata: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/plata.png',
-        oro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/oro.png',
-        platino: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/platino.png',
-        diamante: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/diamante.png',
-        maestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/maestro.png',
-        granmaestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/granmaestro.png',
-        campeon: 'https://comunidadoverwatch.com/wp-content/uploads/2024/02/Logo-campeon-overwatch-2.png',
-        t500: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/top500.png'
+        Bronce: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/bronce.png',
+        Plata: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/plata.png',
+        Oro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/oro.png',
+        Platino: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/platino.png',
+        Diamante: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/diamante.png',
+        Maestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/maestro.png',
+        Granmaestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/granmaestro.png',
+        Campeon: 'https://comunidadoverwatch.com/wp-content/uploads/2024/02/Logo-campeon-overwatch-2.png',
+        Top500: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/top500.png'
     },
-    colors: {
-        bronce: '#cd7f32',
-        plata: '#c0c0c0',
-        oro: '#ffd700',
-        platino: '#e5e4e2',
-        diamante: '#00bfff',
-        maestro: '#00ff00',
-        granmaestro: '#ff6600',
-        t500: '#ffff00',
-        campeon: '#a020f0',
-        sinrango: '#999999'
-    }
+    platformIcons: {
+        pc: 'https://cdn-icons-png.flaticon.com/512/2103/2103657.png',
+        ps: 'https://cdn-icons-png.flaticon.com/512/731/731390.png',
+        xbox: 'https://cdn-icons-png.flaticon.com/512/732/732458.png',
+        switch: 'https://cdn-icons-png.flaticon.com/512/2711/2711272.png'
+    },
+    // Region labels should be lowercase for consistent matching with role names
+    regionLabels: ['america del norte', 'america', 'america del sur', 'europa', 'asia', 'latam']
 };
 
-async function generateProfile(user, rank = 'sinrango') {
-    const canvas = Canvas.createCanvas(600, 250);
+/**
+ * Generates a profile image for a user with their rank, platform, and region.
+ * @param {object} user - The Discord user object.
+ * @param {string} rank - The user's rank.
+ * @param {string} platform - The user's platform.
+ * @param {string} region - The user's region.
+ * @returns {Promise<AttachmentBuilder>} A promise that resolves to an AttachmentBuilder containing the generated image.
+ */
+async function generateProfile(user, rank, platform, region) {
+    const canvas = Canvas.createCanvas(600, 300);
     const ctx = canvas.getContext('2d');
 
-    // Verificación y fallback de rango
-    const validRank = config.rankImages.hasOwnProperty(rank) ? rank : 'sinrango';
-    const rankColor = config.colors[validRank] || '#2c2f33';
-
-    // Fondo con color de rango
-    ctx.fillStyle = rankColor;
+    // Fill background
+    ctx.fillStyle = config.backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Avatar circular con manejo mejorado de errores
+    // Draw avatar
     try {
         const avatarUrl = user.displayAvatarURL({ extension: 'png', size: 256 });
         const { body } = await request(avatarUrl);
@@ -50,64 +55,121 @@ async function generateProfile(user, rank = 'sinrango') {
 
         ctx.save();
         ctx.beginPath();
-        ctx.arc(125, 125, 80, 0, Math.PI * 2);
+        ctx.arc(100, 150, 70, 0, Math.PI * 2);
         ctx.closePath();
         ctx.clip();
-        ctx.drawImage(avatar, 45, 45, 160, 160);
+        ctx.drawImage(avatar, 30, 80, 140, 140);
         ctx.restore();
+
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(100, 150, 70, 0, Math.PI * 2);
+        ctx.stroke();
     } catch (error) {
-        console.error('Error al cargar avatar:', error);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '20px Arial';
-        ctx.fillText('AVATAR', 85, 125);
+        console.error(`Error loading avatar for user ${user.username}:`, error);
+        // Optionally draw a placeholder or log a more user-friendly error
     }
 
-    // Insignia de rango con verificación de URL
+    // Draw username
+    ctx.fillStyle = config.accentColor;
+    ctx.font = 'bold 32px Arial';
+    ctx.fillText(user.username, 220, 90);
+
+    // --- Layout adjustments start here ---
+
+    const textStartX = 220; // Starting X position for all text
+    let currentY = 145; // Initial Y position for the first line of info
+
+    // Draw rank
     try {
-        const rankImageUrl = config.rankImages[validRank];
-        if (!rankImageUrl) throw new Error('URL de imagen de rango no definida');
+        ctx.fillStyle = '#ffcc00'; // Specific color for rank text
+        ctx.font = 'bold 24px Arial';
+        const rankText = `Rango: ${rank}`;
+        ctx.fillText(rankText, textStartX, currentY);
 
-        const rankImg = await Canvas.loadImage(rankImageUrl);
-        ctx.drawImage(rankImg, 450, 30, 120, 120);
+        const rankTextWidth = ctx.measureText(rankText).width;
+        const rankIconX = textStartX + rankTextWidth + 10; // 10 pixels spacing after text
+        const rankIconY = currentY - (config.rankIconSize.height / 2) + 5; // Adjust Y to align vertically with text
+
+        const rankImg = await Canvas.loadImage(config.rankImages[rank]);
+        ctx.drawImage(rankImg, rankIconX, rankIconY, config.rankIconSize.width, config.rankIconSize.height);
     } catch (error) {
-        console.error('Error al cargar insignia de rango:', error);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px Arial';
-        ctx.fillText(validRank.toUpperCase(), 460, 100);
+        console.error(`Invalid rank provided or image failed to load for rank "${rank}":`, error);
     }
 
-    // Información del usuario
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial';
-    ctx.fillText(user.username, 250, 80);
+    currentY += 40; // Move down for the next line (adjust spacing as needed)
 
+    // Draw platform
+    try {
+        ctx.fillStyle = config.textColor;
+        ctx.font = '20px Arial';
+        const platformText = `Plataforma: ${platform.toUpperCase()}`;
+        ctx.fillText(platformText, textStartX, currentY);
+
+        // Optionally, if you also want an icon for platform to the right of text:
+        // const platformTextWidth = ctx.measureText(platformText).width;
+        // const platformIconX = textStartX + platformTextWidth + 10;
+        // const platformIconY = currentY - (config.platformIconSize.height / 2) + 5;
+        // const platformImg = await Canvas.loadImage(config.platformIcons[platform]);
+        // ctx.drawImage(platformImg, platformIconX, platformIconY, config.platformIconSize.width, config.platformIconSize.height);
+
+    } catch (error) {
+        console.error(`Invalid platform provided or image failed to load for platform "${platform}":`, error);
+    }
+
+    currentY += 40; // Move down for the next line
+
+    // Draw region
+    ctx.fillStyle = config.textColor;
     ctx.font = '20px Arial';
-    ctx.fillText(`Rango: ${validRank}`, 250, 120);
+    const formattedRegion = region.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    ctx.fillText(`Región: ${formattedRegion}`, textStartX, currentY);
 
+    // --- Layout adjustments end here ---
+
+    // Draw galaxy logo
+    try {
+        const logoImg = await Canvas.loadImage(config.galaxyLogo);
+        // Position logo to the right, adjusting Y for overall layout
+        ctx.drawImage(logoImg, 430, 210, 120, 60);
+    } catch (error) {
+        console.error('Failed to load galaxy logo:', error);
+    }
+
+    // Return the generated image as an AttachmentBuilder
     return new AttachmentBuilder(await canvas.encode('png'), { name: 'perfil.png' });
 }
 
+// The module.exports part remains the same as it handles Discord interaction logic
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('perfil')
-        .setDescription('Muestra tu perfil de Overwatch')
-        .addStringOption(option =>
-            option.setName('rango')
-            .setDescription('Selecciona tu rango')
-            .addChoices({ name: 'Sin rango', value: 'sinrango' }, { name: 'Bronce', value: 'bronce' }, { name: 'Plata', value: 'plata' }, { name: 'Oro', value: 'oro' }, { name: 'Platino', value: 'platino' }, { name: 'Diamante', value: 'diamante' }, { name: 'Maestro', value: 'maestro' }, { name: 'Gran Maestro', value: 'granmaestro' }, { name: 'Top 500', value: 't500' }, { name: 'Campeón', value: 'campeon' })),
+        .setName('perfil-prueba')
+        .setDescription('Genera tu perfil de Overwatch automáticamente desde tus roles'),
 
     async execute(interaction) {
-        const rank = interaction.options.getString('rango') || 'sinrango';
+        const roles = interaction.member.roles.cache.map(r => r.name.toLowerCase());
+
+        const rank = Object.keys(config.rankImages).find(r => roles.includes(r.toLowerCase()));
+        const platform = Object.keys(config.platformIcons).find(p => roles.includes(p.toLowerCase()));
+        const region = config.regionLabels.find(reg => roles.includes(reg));
+
+        if (!rank || !platform || !region) {
+            return await interaction.reply({
+                content: '❌ Debes tener asignado un rol de rango, plataforma y región para generar tu perfil. Por favor, asegúrate de tener los roles correctos.',
+                ephemeral: true
+            });
+        }
 
         try {
             await interaction.deferReply();
-            const profileImage = await generateProfile(interaction.user, rank);
-            await interaction.editReply({ files: [profileImage] });
+            const image = await generateProfile(interaction.user, rank, platform, region);
+            await interaction.editReply({ files: [image] });
         } catch (error) {
-            console.error('Error en el comando /perfil:', error);
+            console.error('Error during profile generation or reply:', error);
             await interaction.editReply({
-                content: '❌ Error al generar el perfil',
-                flags: MessageFlags.Ephemeral
+                content: '❌ Hubo un error al intentar generar la imagen de tu perfil. Por favor, inténtalo de nuevo más tarde.',
+                ephemeral: true
             });
         }
     }
