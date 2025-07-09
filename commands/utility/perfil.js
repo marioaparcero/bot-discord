@@ -15,11 +15,11 @@ const config = {
         Plata: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/plata.png',
         Oro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/oro.png',
         Platino: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/platino.png',
-        Diamante: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/diamante.png',
+        Diamante: 'https://comunidadooverwatch.com/wp-content/uploads/2022/11/diamante.png',
         Maestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/maestro.png',
         Granmaestro: 'https://comunidadooverwatch.com/wp-content/uploads/2022/11/granmaestro.png',
         Campeon: 'https://comunidadoverwatch.com/wp-content/uploads/2024/02/Logo-campeon-overwatch-2.png',
-        Top500: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/top500.png'
+        Top500: 'https://comunidadooverwatch.com/wp-content/uploads/2022/11/top500.png'
     },
     platformIcons: {
         PC: 'https://media.discordapp.net/attachments/1391123034286460928/1392551036165685481/pc.png?ex=686ff1b7&is=686ea037&hm=de28a29deb219628550b15f7f5002fcda34ac38806b782e7958e6da3d6fc2a55&=&format=webp&quality=lossless&width=1006&height=1006',
@@ -87,24 +87,33 @@ async function generateProfile(user, rank, platform, region) {
     const textStartX = 220; // Starting X position for all text
     let currentY = 145; // Initial Y position for the first line of info
 
+    // Tamaño uniforme para todos los iconos
+    const iconSize = 40;
+
+    // Helper para centrar icono con texto
+    function getIconY(currentY, fontSize, iconSize) {
+        // Centra el icono respecto a la línea base del texto
+        return currentY - fontSize / 2 - iconSize / 2 + fontSize;
+    }
+
     // Draw rank
     try {
-        ctx.fillStyle = '#ffcc00'; // Specific color for rank text
+        ctx.fillStyle = '#ffcc00';
         ctx.font = 'bold 24px Arial';
         const rankText = `Rango: ${rank}`;
         ctx.fillText(rankText, textStartX, currentY);
 
         const rankTextWidth = ctx.measureText(rankText).width;
-        const rankIconX = textStartX + rankTextWidth + 10; // 10 pixels spacing after text
-        const rankIconY = currentY - (config.rankIconSize.height / 2) + 5; // Adjust Y to align vertically with text
+        const rankIconX = textStartX + rankTextWidth + 15;
+        const rankIconY = getIconY(currentY, -10, iconSize);
 
         const rankImg = await Canvas.loadImage(config.rankImages[rank]);
-        ctx.drawImage(rankImg, rankIconX, rankIconY, config.rankIconSize.width, config.rankIconSize.height);
+        ctx.drawImage(rankImg, rankIconX, rankIconY, iconSize, iconSize);
     } catch (error) {
         console.error(`Invalid rank provided or image failed to load for rank "${rank}":`, error);
     }
 
-    currentY += 40; // Move down for the next line (adjust spacing as needed)
+    currentY += 50;
 
     // Draw platform
     try {
@@ -113,23 +122,22 @@ async function generateProfile(user, rank, platform, region) {
         const platformText = `Plataforma: ${platform.toUpperCase()}`;
         ctx.fillText(platformText, textStartX, currentY);
 
-        // Mostrar el icono de plataforma a la derecha del texto
         const platformTextWidth = ctx.measureText(platformText).width;
-        const platformIconX = textStartX + platformTextWidth + 10;
-        const platformIconY = currentY - (config.platformIconSize.height / 2) + 5;
-        // Normaliza la clave para buscar el icono (PC debe ser mayúsculas)
+        const platformIconX = textStartX + platformTextWidth + 15;
+        const platformIconY = getIconY(currentY, -11, iconSize);
+
         let platformKey = platform;
         if (platformKey.toLowerCase() === 'pc') platformKey = 'PC';
         const platformImgUrl = config.platformIcons[platformKey];
         if (platformImgUrl) {
             const platformImg = await Canvas.loadImage(platformImgUrl);
-            ctx.drawImage(platformImg, platformIconX, platformIconY, config.platformIconSize.width, config.platformIconSize.height);
+            ctx.drawImage(platformImg, platformIconX, platformIconY, iconSize, iconSize);
         }
     } catch (error) {
         console.error(`Invalid platform provided or image failed to load for platform "${platform}":`, error);
     }
 
-    currentY += 40; // Move down for the next line
+    currentY += 40;
 
     // Draw region
     ctx.fillStyle = config.textColor;
@@ -139,21 +147,18 @@ async function generateProfile(user, rank, platform, region) {
 
     // Dibuja el icono de la región si existe
     try {
-        // Normaliza el nombre de la región para buscar el icono
         let regionKey = region;
         if (regionKey.startsWith('america')) regionKey = 'america';
         if (regionKey === 'latam') regionKey = 'latam';
         if (regionKey === 'europa') regionKey = 'europa';
-        // Puedes agregar más normalizaciones si tienes más regiones
 
         const regionIconUrl = config.regionIcons[regionKey];
         if (regionIconUrl) {
             const regionImg = await Canvas.loadImage(regionIconUrl);
-            // Calcula la posición del icono a la derecha del texto
             const regionTextWidth = ctx.measureText(`Región: ${formattedRegion}`).width;
-            const iconX = textStartX + regionTextWidth + 10;
-            const iconY = currentY - 20; // Ajusta para alinear verticalmente
-            ctx.drawImage(regionImg, iconX, iconY, 32, 32);
+            const iconX = textStartX + regionTextWidth + -2;
+            const iconY = getIconY(currentY, -10, iconSize);
+            ctx.drawImage(regionImg, iconX, iconY, 65, iconSize);
         }
     } catch (error) {
         console.error('No se pudo cargar el icono de la región:', error);
