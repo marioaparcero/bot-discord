@@ -17,18 +17,24 @@ const config = {
         Platino: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/platino.png',
         Diamante: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/diamante.png',
         Maestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/maestro.png',
-        Granmaestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/granmaestro.png',
+        Granmaestro: 'https://comunidadooverwatch.com/wp-content/uploads/2022/11/granmaestro.png',
         Campeon: 'https://comunidadoverwatch.com/wp-content/uploads/2024/02/Logo-campeon-overwatch-2.png',
         Top500: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/top500.png'
     },
     platformIcons: {
-        pc: 'https://cdn-icons-png.flaticon.com/512/2103/2103657.png',
-        ps: 'https://cdn-icons-png.flaticon.com/512/731/731390.png',
-        xbox: 'https://cdn-icons-png.flaticon.com/512/732/732458.png',
-        switch: 'https://cdn-icons-png.flaticon.com/512/2711/2711272.png'
+        PC: 'https://media.discordapp.net/attachments/1391123034286460928/1392551036165685481/pc.png?ex=686ff1b7&is=686ea037&hm=de28a29deb219628550b15f7f5002fcda34ac38806b782e7958e6da3d6fc2a55&=&format=webp&quality=lossless&width=1006&height=1006',
+        ps: 'https://media.discordapp.net/attachments/1391123034286460928/1392557976442769590/playstation.png?ex=686ff82e&is=686ea6ae&hm=8fc87c4bf59c24b9783ed8a383169cc45adb7bd8f10de5fa84b4ac6b8131c2e3&=&format=webp&quality=lossless&width=1006&height=1006',
+        xbox: 'https://media.discordapp.net/attachments/1391123034286460928/1392575866344706179/xbox.png?ex=687008d7&is=686eb757&hm=7c645ef2da64826ef12aeb223346410573b9ace56d069b55d4b53cfdd59a2841&=&format=webp&quality=lossless&width=1006&height=1006',
+        switch: 'https://media.discordapp.net/attachments/1391123034286460928/1392575950037717162/nintendo-switch.png?ex=687008eb&is=686eb76b&hm=aad46b66f814a2d85dca920f3bfb13fc273bf5078b8f1d6c72bc70ae3887de31&=&format=webp&quality=lossless&width=1006&height=1006'
     },
     // Region labels should be lowercase for consistent matching with role names
-    regionLabels: ['america del norte', 'america', 'america del sur', 'europa', 'asia', 'latam']
+    regionLabels: ['america del norte', 'america', 'america del sur', 'europa', 'asia', 'latam'],
+    regionIcons: {
+        europa: 'https://media.discordapp.net/attachments/1391123034286460928/1392553773632589906/europa-region.png?ex=686ff444&is=686ea2c4&hm=0268acfcf74d080a74aeea84f598639a0be475b60265aad291dc72d090492753&=&format=webp&quality=lossless&width=1353&height=902',
+        america: 'https://media.discordapp.net/attachments/1391123034286460928/1392553773129531552/latam.png?ex=686ff443&is=686ea2c3&hm=5453dea8a71a3fb4910ba6a96bb976f1aa5921254feef41ec99e88caef9ecede&=&format=webp&quality=lossless&width=1353&height=902',
+        latam: 'https://media.discordapp.net/attachments/1391123034286460928/1392553773129531552/latam.png?ex=686ff443&is=686ea2c3&hm=5453dea8a71a3fb4910ba6a96bb976f1aa5921254feef41ec99e88caef9ecede&=&format=webp&quality=lossless&width=1353&height=902'
+            // Puedes agregar más regiones e iconos aquí si tienes las URLs
+    }
 };
 
 /**
@@ -107,13 +113,18 @@ async function generateProfile(user, rank, platform, region) {
         const platformText = `Plataforma: ${platform.toUpperCase()}`;
         ctx.fillText(platformText, textStartX, currentY);
 
-        // Optionally, if you also want an icon for platform to the right of text:
-        // const platformTextWidth = ctx.measureText(platformText).width;
-        // const platformIconX = textStartX + platformTextWidth + 10;
-        // const platformIconY = currentY - (config.platformIconSize.height / 2) + 5;
-        // const platformImg = await Canvas.loadImage(config.platformIcons[platform]);
-        // ctx.drawImage(platformImg, platformIconX, platformIconY, config.platformIconSize.width, config.platformIconSize.height);
-
+        // Mostrar el icono de plataforma a la derecha del texto
+        const platformTextWidth = ctx.measureText(platformText).width;
+        const platformIconX = textStartX + platformTextWidth + 10;
+        const platformIconY = currentY - (config.platformIconSize.height / 2) + 5;
+        // Normaliza la clave para buscar el icono (PC debe ser mayúsculas)
+        let platformKey = platform;
+        if (platformKey.toLowerCase() === 'pc') platformKey = 'PC';
+        const platformImgUrl = config.platformIcons[platformKey];
+        if (platformImgUrl) {
+            const platformImg = await Canvas.loadImage(platformImgUrl);
+            ctx.drawImage(platformImg, platformIconX, platformIconY, config.platformIconSize.width, config.platformIconSize.height);
+        }
     } catch (error) {
         console.error(`Invalid platform provided or image failed to load for platform "${platform}":`, error);
     }
@@ -126,13 +137,35 @@ async function generateProfile(user, rank, platform, region) {
     const formattedRegion = region.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     ctx.fillText(`Región: ${formattedRegion}`, textStartX, currentY);
 
+    // Dibuja el icono de la región si existe
+    try {
+        // Normaliza el nombre de la región para buscar el icono
+        let regionKey = region;
+        if (regionKey.startsWith('america')) regionKey = 'america';
+        if (regionKey === 'latam') regionKey = 'latam';
+        if (regionKey === 'europa') regionKey = 'europa';
+        // Puedes agregar más normalizaciones si tienes más regiones
+
+        const regionIconUrl = config.regionIcons[regionKey];
+        if (regionIconUrl) {
+            const regionImg = await Canvas.loadImage(regionIconUrl);
+            // Calcula la posición del icono a la derecha del texto
+            const regionTextWidth = ctx.measureText(`Región: ${formattedRegion}`).width;
+            const iconX = textStartX + regionTextWidth + 10;
+            const iconY = currentY - 20; // Ajusta para alinear verticalmente
+            ctx.drawImage(regionImg, iconX, iconY, 32, 32);
+        }
+    } catch (error) {
+        console.error('No se pudo cargar el icono de la región:', error);
+    }
+
     // --- Layout adjustments end here ---
 
     // Draw galaxy logo
     try {
         const logoImg = await Canvas.loadImage(config.galaxyLogo);
         // Position logo to the right, adjusting Y for overall layout
-        ctx.drawImage(logoImg, 430, 210, 120, 60);
+        ctx.drawImage(logoImg, 455, 200, 120, 70);
     } catch (error) {
         console.error('Failed to load galaxy logo:', error);
     }
@@ -144,13 +177,14 @@ async function generateProfile(user, rank, platform, region) {
 // The module.exports part remains the same as it handles Discord interaction logic
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('perfil-prueba')
+        .setName('perfil')
         .setDescription('Genera tu perfil de Overwatch automáticamente desde tus roles'),
 
     async execute(interaction) {
         const roles = interaction.member.roles.cache.map(r => r.name.toLowerCase());
 
         const rank = Object.keys(config.rankImages).find(r => roles.includes(r.toLowerCase()));
+        // Normaliza la búsqueda de plataforma para que "pc" (rol en minúsculas) coincida con "PC" (clave en config)
         const platform = Object.keys(config.platformIcons).find(p => roles.includes(p.toLowerCase()));
         const region = config.regionLabels.find(reg => roles.includes(reg));
 
