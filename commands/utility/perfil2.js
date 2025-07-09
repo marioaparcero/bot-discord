@@ -6,16 +6,16 @@ const config = {
     backgroundColor: '#0a0a1a',
     textColor: '#ffffff',
     accentColor: '#1e90ff',
-    rankIconSize: { width: 40, height: 40 },
-    platformIconSize: { width: 25, height: 25 },
-    regionIconSize: { width: 25, height: 25 },
+    rankIconSize: { width: 40, height: 30 },
+    platformIconSize: { width: 40, height: 40 },
+    regionIconSize: { width: 45, height: 30 },
 
     rankImages: {
         sinrango: 'https://comunidadoverwatch.com/wp-content/uploads/2025/07/sin-rango.png',
         bronce: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/bronce.png',
         plata: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/plata.png',
         oro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/oro.png',
-        platino: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/platino.png',
+        platino: 'https://comunidadooverwatch.com/wp-content/uploads/2022/11/platino.png',
         diamante: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/diamante.png',
         maestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/maestro.png',
         granmaestro: 'https://comunidadoverwatch.com/wp-content/uploads/2022/11/granmaestro.png',
@@ -24,7 +24,7 @@ const config = {
     },
 
     platformIcons: {
-        pc: 'https://static.wikia.nocookie.net/logopedia/images/0/0e/Mycomputericonbymarkspcsolution1.png',
+        pc: 'https://media.discordapp.net/attachments/1391123034286460928/1392551036165685481/pc.png?ex=686ff1b7&is=686ea037&hm=de28a29deb219628550b15f7f5002fcda34ac38806b782e7958e6da3d6fc2a55&=&format=webp&quality=lossless&width=1006&height=1006',
         ps: 'https://styles.redditmedia.com/t5_2qh6b/styles/communityIcon_izjg63p4lrw51.png',
         xbox: 'https://images.icon-icons.com/2699/PNG/512/xbox_logo_icon_169692.png',
         switch: 'https://upload.wikimedia.org/wikipedia/commons/3/38/Nintendo_switch_logo.png'
@@ -34,7 +34,7 @@ const config = {
         na: 'https://cdn-icons-png.flaticon.com/512/323/323310.png',
         eu: 'https://media.discordapp.net/attachments/1391123034286460928/1392553773632589906/europa-region.png?ex=686ff444&is=686ea2c4&hm=0268acfcf74d080a74aeea84f598639a0be475b60265aad291dc72d090492753&=&format=webp&quality=lossless&width=1353&height=902',
         as: 'https://cdn-icons-png.flaticon.com/512/323/323329.png',
-        latam: 'https://cdn-icons-png.flaticon.com/512/323/323315.png'
+        latam: 'https://media.discordapp.net/attachments/1391123034286460928/1392553773129531552/latam.png?ex=686ff443&is=686ea2c3&hm=5453dea8a71a3fb4910ba6a96bb976f1aa5921254feef41ec99e88caef9ecede&=&format=webp&quality=lossless&width=1353&height=902'
     }
 };
 
@@ -83,7 +83,7 @@ async function generateProfile(user, rank = 'sinrango', platform = 'pc', region 
         ctx.drawImage(
             rankImg,
             280 + rankTextWidth + 10,
-            95,
+            100,
             config.rankIconSize.width,
             config.rankIconSize.height
         );
@@ -101,7 +101,7 @@ async function generateProfile(user, rank = 'sinrango', platform = 'pc', region 
         ctx.drawImage(
             platformImg,
             280 + platformTextWidth + 10,
-            130,
+            125,
             config.platformIconSize.width,
             config.platformIconSize.height
         );
@@ -132,32 +132,32 @@ async function generateProfile(user, rank = 'sinrango', platform = 'pc', region 
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('perfil-prueba1')
-        .setDescription('Muestra tu perfil de Overwatch')
-        .addStringOption(option =>
-            option.setName('rango')
-            .setDescription('Selecciona tu rango')
-            .addChoices({ name: 'Sin rango', value: 'sinrango' }, { name: 'Bronce', value: 'bronce' }, { name: 'Plata', value: 'plata' }, { name: 'Oro', value: 'oro' }, { name: 'Platino', value: 'platino' }, { name: 'Diamante', value: 'diamante' }, { name: 'Maestro', value: 'maestro' }, { name: 'Gran Maestro', value: 'granmaestro' }, { name: 'Campeón', value: 'campeon' }, { name: 'Top 500', value: 'top500' }))
-        .addStringOption(option =>
-            option.setName('plataforma')
-            .setDescription('Tu plataforma')
-            .addChoices({ name: 'PC', value: 'pc' }, { name: 'PlayStation', value: 'ps' }, { name: 'Xbox', value: 'xbox' }, { name: 'Nintendo Switch', value: 'switch' }))
-        .addStringOption(option =>
-            option.setName('region')
-            .setDescription('Tu región')
-            .addChoices({ name: 'América', value: 'na' }, { name: 'Europa', value: 'eu' }, { name: 'Asia', value: 'as' }, { name: 'Latinoamérica', value: 'latam' })),
+        .setName('perfil2')
+        .setDescription('Muestra tu perfil de Overwatch automáticamente desde tus roles'),
 
     async execute(interaction) {
-        const rank = interaction.options.getString('rango') || 'sinrango';
-        const platform = interaction.options.getString('plataforma') || 'pc';
-        const region = interaction.options.getString('region') || 'eu';
+        // Obtiene los nombres de los roles en minúsculas
+        const roles = interaction.member.roles.cache.map(r => r.name.toLowerCase());
+
+        // Busca el rango, plataforma y región según los roles y las claves de config
+        const rank = Object.keys(config.rankImages).find(r => roles.includes(r)) || 'sinrango';
+        const platform = Object.keys(config.platformIcons).find(p => roles.includes(p)) || 'pc';
+        const region = Object.keys(config.regionIcons).find(reg => roles.includes(reg)) || 'eu';
+
+        // Si falta alguno, avisa al usuario
+        if (!rank || !platform || !region) {
+            return await interaction.reply({
+                content: '❌ Debes tener asignado un rol de rango, plataforma y región para generar tu perfil. Por favor, asegúrate de tener los roles correctos.',
+                ephemeral: true
+            });
+        }
 
         try {
             await interaction.deferReply();
             const profileImage = await generateProfile(interaction.user, rank, platform, region);
             await interaction.editReply({ files: [profileImage] });
         } catch (error) {
-            console.error('Error en el comando /perfil:', error);
+            console.error('Error en el comando /perfil2:', error);
             await interaction.editReply({
                 content: '❌ Error al generar el perfil',
                 flags: MessageFlags.Ephemeral
