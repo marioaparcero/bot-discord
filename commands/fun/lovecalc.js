@@ -59,6 +59,52 @@ module.exports = {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        // ** Cambios: añadir bordes redondeados con sombra y contorno interior **
+        // Parámetros de borde
+        const borderPadding = 10;
+        const borderRadius = 24;
+        const borderX = borderPadding;
+        const borderY = borderPadding;
+        const borderW = canvas.width - borderPadding * 2;
+        const borderH = canvas.height - borderPadding * 2;
+
+        // Función auxiliar para rectángulo redondeado
+        function roundRect(ctx, x, y, w, h, r) {
+            const radius = Math.min(r, w / 2, h / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + w, y, x + w, y + h, radius);
+            ctx.arcTo(x + w, y + h, x, y + h, radius);
+            ctx.arcTo(x, y + h, x, y, radius);
+            ctx.arcTo(x, y, x + w, y, radius);
+            ctx.closePath();
+        }
+
+        // Borde externo con sombra
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.25)';
+        ctx.shadowBlur = 18;
+        roundRect(ctx, borderX, borderY, borderW, borderH, borderRadius);
+        ctx.fillStyle = 'rgba(255,255,255,0)'; // relleno transparente para que la sombra se aplique
+        ctx.fill();
+        // trazo externo (ligero blanco translúcido)
+        const outerGradient = ctx.createLinearGradient(borderX, borderY, borderX + borderW, borderY + borderH);
+        outerGradient.addColorStop(0, 'rgba(255,255,255,0.28)');
+        outerGradient.addColorStop(1, 'rgba(255,255,255,0.12)');
+        ctx.strokeStyle = outerGradient;
+        ctx.lineWidth = 6;
+        ctx.stroke();
+        ctx.restore();
+
+        // Borde interior fino para profundidad
+        ctx.save();
+        roundRect(ctx, borderX + 6, borderY + 6, borderW - 12, borderH - 12, borderRadius - 6);
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        // ** Fin de cambios: bordes **
+
         // Cargar avatares y corazón
         const [avatar1, avatar2, heartImg] = await Promise.all([
             Canvas.loadImage(await fetch(user1.displayAvatarURL({ extension: 'png', size: 128 })).then(r => r.arrayBuffer())),
