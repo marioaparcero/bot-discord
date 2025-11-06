@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^14.13.0"
+    "@napi-rs/canvas": "^0.1.81",
+    "discord.js": "^14.24.2"
   },
   "devDependencies": {
     "eslint": "^8.50.0"
