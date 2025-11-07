@@ -3,6 +3,7 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
+//asdasd
 //Modo Developer
 const client = new Client({intents: [131071]});
 
