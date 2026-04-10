@@ -10,6 +10,28 @@ const { getTwitchUser, getTwitchStream, getKickStream } = require('./streamApi')
 const notifiedStreams = new Set(); // key: `${guildId}-${platform}-${username}`
 
 /**
+ * Juegos/categorías permitidos para enviar notificación.
+ * Solo se notifica si el streamer está en una de estas categorías.
+ */
+const ALLOWED_GAMES = [
+    'overwatch',
+    'overwatch 2',
+    'just chatting',
+    'charlando',
+];
+
+/**
+ * Verifica si la categoría del stream está en la whitelist permitida.
+ * @param {string|null} gameName
+ * @returns {boolean}
+ */
+function isAllowedGame(gameName) {
+    if (!gameName || gameName.trim() === '') return false;
+    const lower = gameName.toLowerCase().trim();
+    return ALLOWED_GAMES.some(allowed => lower.includes(allowed));
+}
+
+/**
  * Construye el embed de Twitch para notificación de stream online.
  */
 function buildTwitchEmbed(streamer, stream) {
@@ -147,7 +169,18 @@ async function checkStreamers(client) {
                     // Streamer en vivo
                     const uniqueId = `${key}-${stream.id}`;
                     if (!streamer.isLive || streamer.lastStreamId !== stream.id) {
-                        // Nuevo stream, notificar
+                        // Validar categoría: debe estar en la whitelist
+                        if (!isAllowedGame(stream.game_name)) {
+                            const reason = stream.game_name
+                                ? `categoría no permitida [${stream.game_name}]`
+                                : 'sin categoría';
+                            console.log(`[Twitch] ⏭️ ${streamer.username} en vivo — ${reason} — omitiendo notificación`);
+                            streamer.isLive = true;
+                            await streamer.save();
+                            continue;
+                        }
+
+                        // Categoría permitida → notificar
                         if (!notifiedStreams.has(uniqueId)) {
                             notifiedStreams.add(uniqueId);
                             const embed = buildTwitchEmbed(streamer, stream);
@@ -156,7 +189,7 @@ async function checkStreamers(client) {
                                 ? `🚨ATENCIÓN🚨 <@${streamer.discordUserId}> está en directo: ${streamUrl}`
                                 : `${streamUrl} is now live on Twitch!`;
                             await sendStreamNotification(client, streamer.guildId, streamer, embed, streamUrl, liveText);
-                            console.log(`[Twitch] 🔴 ${streamer.username} está en VIVO (Guild: ${streamer.guildId})`);
+                            console.log(`[Twitch] 🔴 ${streamer.username} está en VIVO jugando ${stream.game_name} (Guild: ${streamer.guildId})`);
                         }
                         streamer.isLive = true;
                         streamer.lastStreamId = stream.id;
@@ -182,6 +215,17 @@ async function checkStreamers(client) {
                 if (stream) {
                     const uniqueId = `${key}-${stream.id}`;
                     if (!streamer.isLive || streamer.lastStreamId !== stream.id) {
+                        // Validar categoría: debe estar en la whitelist
+                        if (!isAllowedGame(stream.game)) {
+                            const reason = stream.game
+                                ? `categoría no permitida [${stream.game}]`
+                                : 'sin categoría';
+                            console.log(`[Kick] ⏭️ ${streamer.username} en vivo — ${reason} — omitiendo notificación`);
+                            streamer.isLive = true;
+                            await streamer.save();
+                            continue;
+                        }
+
                         if (!notifiedStreams.has(uniqueId)) {
                             notifiedStreams.add(uniqueId);
                             // Actualizar profile si lo tenemos
@@ -196,7 +240,7 @@ async function checkStreamers(client) {
                                 ? `🚨ATENCIÓN🚨 <@${streamer.discordUserId}> está en directo: ${stream.url}`
                                 : `${stream.url} is now live on Kick!`;
                             await sendStreamNotification(client, streamer.guildId, streamer, embed, stream.url, liveText);
-                            console.log(`[Kick] 🟢 ${streamer.username} está en VIVO (Guild: ${streamer.guildId})`);
+                            console.log(`[Kick] 🟢 ${streamer.username} está en VIVO jugando ${stream.game} (Guild: ${streamer.guildId})`);
                         }
                         streamer.isLive = true;
                         streamer.lastStreamId = stream.id;
