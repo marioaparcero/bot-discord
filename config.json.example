@@ -1,0 +1,8 @@
+{
+    "token": "TU_TOKEN_DE_DISCORD",
+    "clientId": "TU_CLIENT_ID_DE_DISCORD",
+    "guildId": "TU_GUILD_ID_DE_DISCORD",
+    "mongoUri": "mongodb://localhost:27017/owgalaxy-streams",
+    "twitchClientId": "TU_TWITCH_CLIENT_ID",
+    "twitchClientSecret": "TU_TWITCH_CLIENT_SECRET"
+}

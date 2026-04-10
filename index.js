@@ -1,13 +1,18 @@
+/**
+ * @author thxmasdev
+ */
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+const { connectDB } = require('./database/mongoose');
+const { startStreamChecker } = require('./services/streamChecker');
 
-//Modo Developer
-const client = new Client({intents: [131071]});
+// Modo Developer (todos los intents)
+const client = new Client({ intents: [131071] });
 
 // Modo Producción
-//const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -40,4 +45,13 @@ for (const file of eventFiles) {
 	}
 }
 
-client.login(token);
+// Iniciar MongoDB y luego el bot
+(async () => {
+	await connectDB();
+	client.login(token).then(() => {
+		// Iniciar el verificador de streams cuando el bot esté listo
+		client.once('ready', () => {
+			startStreamChecker(client);
+		});
+	});
+})();
