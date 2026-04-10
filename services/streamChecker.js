@@ -81,8 +81,23 @@ async function sendStreamNotification(client, guildId, streamer, embed, streamUr
         const channel = guild.channels.cache.get(config.notificationChannelId);
         if (!channel) return;
 
-        // Enviar: texto con la URL del stream + embed juntos en un mismo mensaje
-        const msg = await channel.send({ content: liveText, embeds: [embed] });
+        // Construir el contenido del mensaje
+        let content;
+        if (config?.customMessage) {
+            // Aplicar plantilla personalizada: reemplazar $link y $user
+            const userMention = streamer.discordUserId
+                ? `<@${streamer.discordUserId}>`
+                : (streamer.displayName || streamer.username);
+
+            content = config.customMessage
+                .replace(/\$link/g, streamUrl)
+                .replace(/\$user/g, userMention);
+        } else {
+            // Mensaje por defecto (liveText ya viene construido con mención si aplica)
+            content = liveText;
+        }
+
+        const msg = await channel.send({ content, embeds: [embed] });
 
         // Guardar en historial
         await StreamHistory.create({
@@ -136,8 +151,11 @@ async function checkStreamers(client) {
                         if (!notifiedStreams.has(uniqueId)) {
                             notifiedStreams.add(uniqueId);
                             const embed = buildTwitchEmbed(streamer, stream);
-                            const liveText = `https://twitch.tv/${streamer.username} is now live on Twitch!`;
-                            await sendStreamNotification(client, streamer.guildId, streamer, embed, `https://twitch.tv/${streamer.username}`, liveText);
+                            const streamUrl = `https://twitch.tv/${streamer.username}`;
+                            const liveText = streamer.discordUserId
+                                ? `🚨ATENCIÓN🚨 <@${streamer.discordUserId}> está en directo: ${streamUrl}`
+                                : `${streamUrl} is now live on Twitch!`;
+                            await sendStreamNotification(client, streamer.guildId, streamer, embed, streamUrl, liveText);
                             console.log(`[Twitch] 🔴 ${streamer.username} está en VIVO (Guild: ${streamer.guildId})`);
                         }
                         streamer.isLive = true;
@@ -174,7 +192,9 @@ async function checkStreamers(client) {
                                 streamer.displayName = stream.displayName;
                             }
                             const embed = buildKickEmbed(streamer, stream);
-                            const liveText = `https://kick.com/${streamer.username} is now live on Kick!`;
+                            const liveText = streamer.discordUserId
+                                ? `🚨ATENCIÓN🚨 <@${streamer.discordUserId}> está en directo: ${stream.url}`
+                                : `${stream.url} is now live on Kick!`;
                             await sendStreamNotification(client, streamer.guildId, streamer, embed, stream.url, liveText);
                             console.log(`[Kick] 🟢 ${streamer.username} está en VIVO (Guild: ${streamer.guildId})`);
                         }

@@ -26,6 +26,7 @@ const streamerSchema = new mongoose.Schema({
     userId: { type: String, default: null },          // ID del usuario en la plataforma
     displayName: { type: String, default: null },     // Nombre para mostrar
     profileImage: { type: String, default: null },    // Avatar del streamer
+    discordUserId: { type: String, default: null },   // ID de Discord vinculado (mención en notificaciones)
     isLive: { type: Boolean, default: false },        // Estado actual del stream
     lastStreamId: { type: String, default: null },    // ID del último stream notificado
     lastNotificationAt: { type: Date, default: null },// Última notificación enviada
