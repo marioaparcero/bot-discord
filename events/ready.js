@@ -1,12 +1,15 @@
-// client.once(Events.ClientReady, c => {
-// 	console.log(`Ready! Logged in as ${c.user.tag}`);
-// });
 const { Events } = require('discord.js');
 
 module.exports = {
-	name: Events.ClientReady,
-	once: true,
-	execute(client) {
-		console.log(`Ready! Logged in as ${client.user.tag}`);
-	},
+    name: Events.ClientReady,
+    once: true,
+    async execute(client) {
+        console.log(`✅ Bot listo: ${client.user.tag}`);
+
+        // Iniciar Lavalink
+        client.lavalink.options.client.id = client.user.id;
+        await client.lavalink.init({ id: client.user.id, username: client.user.username });
+
+        console.log('🎵 Lavalink Manager iniciado.');
+    },
 };
