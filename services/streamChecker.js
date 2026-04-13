@@ -7,7 +7,11 @@ const { Streamer, GuildConfig, StreamHistory } = require('../database/models');
 const { getTwitchUser, getTwitchStream, getKickStream } = require('./streamApi');
 
 // Evitar doble notificación durante el polling
-const notifiedStreams = new Set(); // key: `${guildId}-${platform}-${username}`
+// key: `${guildId}-${platform}-${username}-${streamId}`
+const notifiedStreams = new Set();
+
+// Flag: primera ejecución al arrancar el bot (sync silencioso, sin notificar)
+let isStartupSync = true;
 
 /**
  * Juegos/categorías permitidos para enviar notificación.
@@ -139,8 +143,10 @@ async function sendStreamNotification(client, guildId, streamer, embed, streamUr
 
 /**
  * Verifica el estado de todos los streamers registrados y envía notificaciones.
+ * @param {import('discord.js').Client} client
+ * @param {boolean} [silent=false] - Si es true, actualiza el estado en BD sin enviar notificaciones.
  */
-async function checkStreamers(client) {
+async function checkStreamers(client, silent = false) {
     const { twitchClientId, twitchClientSecret } = require('../config.json');
 
     try {
@@ -168,19 +174,33 @@ async function checkStreamers(client) {
                 if (stream) {
                     // Streamer en vivo
                     const uniqueId = `${key}-${stream.id}`;
-                    if (!streamer.isLive || streamer.lastStreamId !== stream.id) {
+                    const wasOffline = !streamer.isLive || streamer.lastStreamId !== stream.id;
+
+                    if (wasOffline) {
+                        // Actualizar estado en BD siempre
+                        streamer.isLive = true;
+                        streamer.lastStreamId = stream.id;
+
+                        if (silent) {
+                            // Startup sync: solo sincronizar estado, sin notificar
+                            // Marcar como «ya visto» para que el próximo ciclo no notifique
+                            notifiedStreams.add(uniqueId);
+                            console.log(`[Twitch] 🔄 [sync] ${streamer.username} ya está en vivo — sincronizando sin notificar`);
+                            await streamer.save();
+                            continue;
+                        }
+
                         // Validar categoría: debe estar en la whitelist
                         if (!isAllowedGame(stream.game_name)) {
                             const reason = stream.game_name
                                 ? `categoría no permitida [${stream.game_name}]`
                                 : 'sin categoría';
                             console.log(`[Twitch] ⏭️ ${streamer.username} en vivo — ${reason} — omitiendo notificación`);
-                            streamer.isLive = true;
                             await streamer.save();
                             continue;
                         }
 
-                        // Categoría permitida → notificar
+                        // Categoría permitida → notificar solo si no se notificó ya en este ciclo
                         if (!notifiedStreams.has(uniqueId)) {
                             notifiedStreams.add(uniqueId);
                             const embed = buildTwitchEmbed(streamer, stream);
@@ -191,8 +211,7 @@ async function checkStreamers(client) {
                             await sendStreamNotification(client, streamer.guildId, streamer, embed, streamUrl, liveText);
                             console.log(`[Twitch] 🔴 ${streamer.username} está en VIVO jugando ${stream.game_name} (Guild: ${streamer.guildId})`);
                         }
-                        streamer.isLive = true;
-                        streamer.lastStreamId = stream.id;
+
                         streamer.lastNotificationAt = new Date();
                         await streamer.save();
                     }
@@ -214,27 +233,36 @@ async function checkStreamers(client) {
 
                 if (stream) {
                     const uniqueId = `${key}-${stream.id}`;
-                    if (!streamer.isLive || streamer.lastStreamId !== stream.id) {
+                    const wasOffline = !streamer.isLive || streamer.lastStreamId !== stream.id;
+
+                    if (wasOffline) {
+                        // Actualizar perfil si tenemos datos nuevos
+                        if (stream.profileImage && !streamer.profileImage) streamer.profileImage = stream.profileImage;
+                        if (stream.displayName && !streamer.displayName)   streamer.displayName  = stream.displayName;
+
+                        streamer.isLive = true;
+                        streamer.lastStreamId = stream.id;
+
+                        if (silent) {
+                            // Startup sync: solo sincronizar estado, sin notificar
+                            notifiedStreams.add(uniqueId);
+                            console.log(`[Kick] 🔄 [sync] ${streamer.username} ya está en vivo — sincronizando sin notificar`);
+                            await streamer.save();
+                            continue;
+                        }
+
                         // Validar categoría: debe estar en la whitelist
                         if (!isAllowedGame(stream.game)) {
                             const reason = stream.game
                                 ? `categoría no permitida [${stream.game}]`
                                 : 'sin categoría';
                             console.log(`[Kick] ⏭️ ${streamer.username} en vivo — ${reason} — omitiendo notificación`);
-                            streamer.isLive = true;
                             await streamer.save();
                             continue;
                         }
 
                         if (!notifiedStreams.has(uniqueId)) {
                             notifiedStreams.add(uniqueId);
-                            // Actualizar profile si lo tenemos
-                            if (stream.profileImage && !streamer.profileImage) {
-                                streamer.profileImage = stream.profileImage;
-                            }
-                            if (stream.displayName && !streamer.displayName) {
-                                streamer.displayName = stream.displayName;
-                            }
                             const embed = buildKickEmbed(streamer, stream);
                             const liveText = streamer.discordUserId
                                 ? `🚨ATENCIÓN🚨 <@${streamer.discordUserId}> está en directo: ${stream.url}`
@@ -242,8 +270,7 @@ async function checkStreamers(client) {
                             await sendStreamNotification(client, streamer.guildId, streamer, embed, stream.url, liveText);
                             console.log(`[Kick] 🟢 ${streamer.username} está en VIVO jugando ${stream.game} (Guild: ${streamer.guildId})`);
                         }
-                        streamer.isLive = true;
-                        streamer.lastStreamId = stream.id;
+
                         streamer.lastNotificationAt = new Date();
                         await streamer.save();
                     }
@@ -271,11 +298,18 @@ async function checkStreamers(client) {
  * Inicia el cron job que verifica los streamers cada 2 minutos.
  */
 function startStreamChecker(client) {
-    console.log('[Checker] ⏰ Iniciando verificador de streams (cada 2 minutos)...');
-    // Verificar inmediatamente al iniciar
-    setTimeout(() => checkStreamers(client), 5000);
-    // Luego cada 2 minutos
-    cron.schedule('*/2 * * * *', () => checkStreamers(client));
+    console.log('[Checker] ⏰ Iniciando verificador de streams (cada 10 minutos)...');
+
+    // Al arrancar: sync silencioso para no re-notificar streamers ya en vivo
+    setTimeout(async () => {
+        console.log('[Checker] 🔄 Sincronización inicial (sin notificaciones)...');
+        await checkStreamers(client, true);
+        isStartupSync = false;
+        console.log('[Checker] ✅ Sync completado. El bot ya está monitoreando correctamente.');
+    }, 5000);
+
+    // Ciclos normales cada 10 minutos (solo notifica transiciones offline → online)
+    cron.schedule('*/10 * * * *', () => checkStreamers(client, false));
 }
 
 module.exports = { startStreamChecker, checkStreamers };
