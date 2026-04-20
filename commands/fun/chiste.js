@@ -12,6 +12,7 @@ module.exports = {
             '¿Por qué Winston no puede jugar al escondite? Porque siempre se encuentra a sí mismo.',
             '¿Qué le dijo Genji a su hermano? "Eres un ninja de pacotilla".',
             '¿Por qué Mei no puede jugar al fútbol? Porque siempre se congela en el campo.',
+            '¿Qué le dijo D.Va a su mech? "Eres mi mejor amigo, pero a veces me haces sentir como un piloto de juguete".',
         ];
         const chisteRandom = chistes[Math.floor(Math.random() * chistes.length)];
         await interaction.reply(chisteRandom);
