@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags, Colors } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,7 +11,7 @@ module.exports = {
                 
     async execute(interaction) {
         // Deferir la respuesta es una buena práctica si la API de Discord tarda en procesar el cambio de apodo
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const member = interaction.member;
         const reason = interaction.options.getString('motivo') || 'No especificado';
