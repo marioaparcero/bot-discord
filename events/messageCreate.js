@@ -84,10 +84,7 @@ module.exports = {
                     })
                     .setTimestamp();
 
-                const msg = await message.channel.send({ embeds: [embedVuelta] });
-
-                // Auto-borrar el aviso después de 8 segundos para no llenar el chat
-                setTimeout(() => msg.delete().catch(() => null), 8_000);
+                await message.channel.send({ embeds: [embedVuelta] });
             }
         }
 
