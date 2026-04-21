@@ -3,9 +3,11 @@
  * @author thxmasdev
  * @description Permite a un usuario activar el modo AFK con un motivo opcional.
  *              El AFK se desactiva automáticamente cuando el usuario envía un mensaje.
+ *              Solo los miembros con el rol definido en config.afkRoleId pueden usarlo.
  */
 
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { afkRoleId } = require('../../config.json');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -20,6 +22,29 @@ module.exports = {
         ),
 
     async execute(interaction) {
+        // ── Verificación de rol ───────────────────────────────────────────────
+        const member = interaction.member;
+        if (!member.roles.cache.has(afkRoleId)) {
+            const embedDenegado = new EmbedBuilder()
+                .setColor(0xED4245)
+                .setAuthor({
+                    name: `${interaction.user.displayName || interaction.user.username} | Sin permisos`,
+                    iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
+                })
+                .setTitle('🚫  No puedes usar este comando')
+                .setDescription(
+                    `> No tienes el rol necesario para activar el modo AFK.\n` +
+                    `> Habla con un administrador si crees que es un error.`
+                )
+                .setFooter({
+                    text: 'Sistema AFK • thxmasdev',
+                    iconURL: interaction.client.user.displayAvatarURL(),
+                })
+                .setTimestamp();
+
+            return interaction.reply({ embeds: [embedDenegado], ephemeral: true });
+        }
+
         const motivo = interaction.options.getString('motivo') ?? '`Sin motivo especificado`';
         const usuario = interaction.user;
         const ahora = Date.now();
@@ -60,7 +85,8 @@ module.exports = {
 
         // Intentar editar el nick del usuario para mostrar [AFK]
         if (interaction.guild) {
-            const member = await interaction.guild.members.fetch(usuario.id).catch(() => null);
+            const afkMember = await interaction.guild.members.fetch(usuario.id).catch(() => null);
+            const member = afkMember;
             if (member && member.manageable) {
                 const currentNick = member.nickname ?? member.user.username;
                 if (!currentNick.startsWith('[AFK]')) {
