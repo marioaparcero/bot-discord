@@ -2,11 +2,53 @@ const express = require('express');
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const session = require('express-session');
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 const { token, clientId, clientSecret } = require('./config.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Lista de permisos disponibles en Discord
+const DISCORD_PERMISSIONS = [
+    { name: 'CREATE_INSTANT_INVITE', displayName: 'Crear invitación' },
+    { name: 'KICK_MEMBERS', displayName: 'Expulsar miembros' },
+    { name: 'BAN_MEMBERS', displayName: 'Banear miembros' },
+    { name: 'ADMINISTRATOR', displayName: 'Administrador' },
+    { name: 'MANAGE_CHANNELS', displayName: 'Gestionar canales' },
+    { name: 'MANAGE_GUILD', displayName: 'Gestionar servidor' },
+    { name: 'ADD_REACTIONS', displayName: 'Añadir reacciones' },
+    { name: 'VIEW_AUDIT_LOG', displayName: 'Ver registro de auditoría' },
+    { name: 'PRIORITY_SPEAKER', displayName: 'Prioridad de voz' },
+    { name: 'STREAM', displayName: 'Transmitir' },
+    { name: 'VIEW_CHANNEL', displayName: 'Ver canal' },
+    { name: 'SEND_MESSAGES', displayName: 'Enviar mensajes' },
+    { name: 'SEND_TTS_MESSAGES', displayName: 'Enviar mensajes de texto a voz' },
+    { name: 'MANAGE_MESSAGES', displayName: 'Gestionar mensajes' },
+    { name: 'EMBED_LINKS', displayName: 'Incrustar enlaces' },
+    { name: 'ATTACH_FILES', displayName: 'Adjuntar archivos' },
+    { name: 'READ_MESSAGE_HISTORY', displayName: 'Leer historial de mensajes' },
+    { name: 'MENTION_EVERYONE', displayName: 'Mencionar a todos' },
+    { name: 'USE_EXTERNAL_EMOJIS', displayName: 'Usar emojis externos' },
+    { name: 'VIEW_GUILD_INSIGHTS', displayName: 'Ver información del servidor' },
+    { name: 'CONNECT', displayName: 'Conectar' },
+    { name: 'SPEAK', displayName: 'Hablar' },
+    { name: 'MUTE_MEMBERS', displayName: 'Silenciar miembros' },
+    { name: 'DEAFEN_MEMBERS', displayName: 'Ensordecerse' },
+    { name: 'MOVE_MEMBERS', displayName: 'Mover miembros' },
+    { name: 'USE_VAD', displayName: 'Usar actividad por voz' },
+    { name: 'CHANGE_NICKNAME', displayName: 'Cambiar apodo' },
+    { name: 'MANAGE_NICKNAMES', displayName: 'Gestionar apodos' },
+    { name: 'MANAGE_ROLES', displayName: 'Gestionar roles' },
+    { name: 'MANAGE_WEBHOOKS', displayName: 'Gestionar webhooks' },
+    { name: 'MANAGE_GUILD_EXPRESSIONS', displayName: 'Gestionar expresiones del servidor' },
+    { name: 'USE_APPLICATION_COMMANDS', displayName: 'Usar comandos de aplicación' },
+    { name: 'REQUEST_TO_SPEAK', displayName: 'Solicitar para hablar' },
+    { name: 'MANAGE_EVENTS', displayName: 'Gestionar eventos' },
+    { name: 'MANAGE_THREADS', displayName: 'Gestionar hilos' },
+    { name: 'CREATE_PUBLIC_THREADS', displayName: 'Crear hilos públicos' },
+    { name: 'CREATE_PRIVATE_THREADS', displayName: 'Crear hilos privados' },
+    { name: 'SEND_MESSAGES_IN_THREADS', displayName: 'Enviar mensajes en hilos' },
+];
 
 // Configurar Passport
 passport.use(new DiscordStrategy({
@@ -90,12 +132,12 @@ app.get('/guild/:guildId/role/:roleId/permissions', ensureAuthenticated, async (
         return {
             id: channel.id,
             name: channel.name,
-            permissions: overwrites ? overwrites.allow.toArray() : [],
-            denied: overwrites ? overwrites.deny.toArray() : []
+            allow: overwrites ? overwrites.allow.toArray() : [],
+            deny: overwrites ? overwrites.deny.toArray() : []
         };
     });
 
-    res.render('rolePermissions', { role, channels });
+    res.render('rolePermissions', { role, channels, permissions: DISCORD_PERMISSIONS });
 });
 
 // Ruta para cambiar permisos (POST)
@@ -110,13 +152,18 @@ app.post('/guild/:guildId/role/:roleId/update', ensureAuthenticated, async (req,
     if (!channel) return res.status(404).send('Canal no encontrado');
 
     try {
+        // Convertir arrays de checkboxes en arrays de permisos
+        const allowPerms = Array.isArray(allow) ? allow : (allow ? [allow] : []);
+        const denyPerms = Array.isArray(deny) ? deny : (deny ? [deny] : []);
+
         await channel.permissionOverwrites.edit(roleId, {
-            allow: allow ? allow.split(',') : [],
-            deny: deny ? deny.split(',') : []
+            Allow: allowPerms,
+            Deny: denyPerms
         });
         res.redirect(`/guild/${guildId}/role/${roleId}/permissions`);
     } catch (error) {
-        res.status(500).send('Error al actualizar permisos');
+        console.error(error);
+        res.status(500).send('Error al actualizar permisos: ' + error.message);
     }
 });
 
