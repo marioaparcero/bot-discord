@@ -32,6 +32,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 // Rutas de autenticación
 app.get('/auth/discord', passport.authenticate('discord'));

@@ -2,23 +2,35 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= guild.name %></title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <h1>Servidor: <%= guild.name %></h1>
-    <h2>Roles</h2>
-    <ul>
-        <% roles.forEach(role => { %>
-            <li>
-                <%= role.name %> - Permisos: <%= role.permissions.join(', ') %>
-                <a href="/guild/<%= guild.id %>/role/<%= role.id %>/permissions">Ver permisos en canales</a>
-                <form action="/guild/<%= guild.id %>/role/<%= role.id %>/update-global" method="POST" style="display:inline;">
-                    <input type="text" name="permissions" value="<%= role.permissions.join(',') %>" placeholder="Permisos separados por coma">
-                    <button type="submit">Actualizar Global</button>
-                </form>
-            </li>
-        <% }); %>
-    </ul>
-    <a href="/dashboard">Volver</a>
+    <div class="container">
+        <div class="header flex">
+            <h1>Servidor: <%= guild.name %></h1>
+            <a href="/dashboard" class="btn">Volver al Dashboard</a>
+        </div>
+        <div class="card">
+            <h2>Roles</h2>
+            <ul>
+                <% roles.forEach(role => { %>
+                    <li class="flex">
+                        <div>
+                            <strong><%= role.name %></strong> - Permisos: <%= role.permissions.join(', ') %>
+                            <br>
+                            <a href="/guild/<%= guild.id %>/role/<%= role.id %>/permissions">Ver permisos en canales</a>
+                        </div>
+                        <form action="/guild/<%= guild.id %>/role/<%= role.id %>/update-global" method="POST" style="margin-left: 20px;">
+                            <label>Permisos globales (separados por coma):</label>
+                            <input type="text" name="permissions" value="<%= role.permissions.join(',') %>">
+                            <button type="submit">Actualizar Global</button>
+                        </form>
+                    </li>
+                <% }); %>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>

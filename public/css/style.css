@@ -1,0 +1,141 @@
+/* Estilos modernos inspirados en Discord */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #36393f;
+    color: #dcddde;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+}
+
+h1, h2, h3 {
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+a {
+    color: #00aff4;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #0099cc;
+}
+
+button, input[type="submit"], .btn {
+    background-color: #5865f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover, input[type="submit"]:hover, .btn:hover {
+    background-color: #4752c4;
+    transform: translateY(-1px);
+}
+
+input[type="text"], input[type="password"] {
+    background-color: #202225;
+    color: #dcddde;
+    border: 1px solid #72767d;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    outline: none;
+    border-color: #5865f2;
+    box-shadow: 0 0 5px rgba(88, 101, 242, 0.5);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background-color: #2f3136;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+}
+
+li:hover {
+    background-color: #36393f;
+}
+
+form {
+    background-color: #2f3136;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #b9bbbe;
+}
+
+.logout {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.header {
+    background-color: #202225;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+    background-color: #2f3136;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    .flex {
+        flex-direction: column;
+    }
+}
