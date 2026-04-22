@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Permisos de <%= role.name %></title>
+</head>
+<body>
+    <h1>Permisos de <%= role.name %> en Canales</h1>
+    <% channels.forEach(channel => { %>
+        <h3><%= channel.name %></h3>
+        <p>Permitidos: <%= channel.permissions.join(', ') %></p>
+        <p>Denegados: <%= channel.denied.join(', ') %></p>
+        <form action="/guild/<%= role.guild.id %>/role/<%= role.id %>/update" method="POST">
+            <input type="hidden" name="channelId" value="<%= channel.id %>">
+            <label>Permitir (separados por coma):</label>
+            <input type="text" name="allow" value="<%= channel.permissions.join(',') %>">
+            <label>Denegar (separados por coma):</label>
+            <input type="text" name="deny" value="<%= channel.denied.join(',') %>">
+            <button type="submit">Actualizar</button>
+        </form>
+    <% }); %>
+    <a href="/guild/<%= role.guild.id %>">Volver al servidor</a>
+</body>
+</html>

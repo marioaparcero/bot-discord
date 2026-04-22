@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title><%= guild.name %></title>
+</head>
+<body>
+    <h1>Servidor: <%= guild.name %></h1>
+    <h2>Roles</h2>
+    <ul>
+        <% roles.forEach(role => { %>
+            <li>
+                <%= role.name %> - Permisos: <%= role.permissions.join(', ') %>
+                <a href="/guild/<%= guild.id %>/role/<%= role.id %>/permissions">Ver permisos en canales</a>
+                <form action="/guild/<%= guild.id %>/role/<%= role.id %>/update-global" method="POST" style="display:inline;">
+                    <input type="text" name="permissions" value="<%= role.permissions.join(',') %>" placeholder="Permisos separados por coma">
+                    <button type="submit">Actualizar Global</button>
+                </form>
+            </li>
+        <% }); %>
+    </ul>
+    <a href="/dashboard">Volver</a>
+</body>
+</html>

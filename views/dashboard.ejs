@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Hola, <%= user.username %></h1>
+    <h2>Tus Servidores</h2>
+    <ul>
+        <% guilds.forEach(guild => { %>
+            <li><a href="/guild/<%= guild.id %>"><%= guild.name %></a></li>
+        <% }); %>
+    </ul>
+    <a href="/logout">Cerrar sesión</a>
+</body>
+</html>
